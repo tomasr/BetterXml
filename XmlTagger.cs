@@ -60,22 +60,28 @@ namespace Winterdom.VisualStudio.Extensions.Text {
           if ( cs.GetText().EndsWith("</") ) {
             foundClosingTag = true;
           }
-        } else if ( tagName == "XML Name" ) {
-          String text = cs.GetText();
-          int colon = text.IndexOf(':');
-          if ( colon < 0 && foundClosingTag ) {
-            yield return new TagSpan<ClassificationTag>(cs, xmlCloseTagClassification);
-          } else if ( colon > 0 ) {
-            string prefix = text.Substring(0, colon);
-            string name = text.Substring(colon);
-            yield return new TagSpan<ClassificationTag>(
-              new SnapshotSpan(cs.Start, prefix.Length), xmlPrefixClassification);
-            if ( foundClosingTag ) {
-              yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
-                cs.Start.Add(prefix.Length), name.Length), xmlCloseTagClassification);
-            }
+        } else if ( tagName == "XML Name" || tagName == "XML Attribute" ) {
+          foreach ( var ct in ProcessXmlName(cs, foundClosingTag) ) {
+            yield return ct;
           }
           foundClosingTag = false;
+        }
+      }
+    }
+
+    private IEnumerable<ITagSpan<ClassificationTag>> ProcessXmlName(SnapshotSpan cs, bool isClosing) {
+      String text = cs.GetText();
+      int colon = text.IndexOf(':');
+      if ( colon < 0 && isClosing ) {
+        yield return new TagSpan<ClassificationTag>(cs, xmlCloseTagClassification);
+      } else if ( colon > 0 ) {
+        string prefix = text.Substring(0, colon);
+        string name = text.Substring(colon);
+        yield return new TagSpan<ClassificationTag>(
+          new SnapshotSpan(cs.Start, prefix.Length), xmlPrefixClassification);
+        if ( isClosing ) {
+          yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
+            cs.Start.Add(prefix.Length), name.Length), xmlCloseTagClassification);
         }
       }
     }
