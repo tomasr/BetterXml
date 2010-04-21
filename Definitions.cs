@@ -1,0 +1,27 @@
+﻿using System.ComponentModel.Composition;
+using System.Windows.Media;
+using Microsoft.VisualStudio.Text.Classification;
+using Microsoft.VisualStudio.Utilities;
+
+namespace Winterdom.VisualStudio.Extensions.Text {
+  internal static class Constants {
+    public const string XML_CLOSING = "XMLCloseTag";
+  }
+  internal static class XmlClosingTagClassificationDefinition {
+    [Export(typeof(ClassificationTypeDefinition))]
+    [Name(Constants.XML_CLOSING)]
+    internal static ClassificationTypeDefinition XmlClosingType = null;
+  }
+
+  [Export(typeof(EditorFormatDefinition))]
+  [ClassificationType(ClassificationTypeNames = Constants.XML_CLOSING)]
+  [Name(Constants.XML_CLOSING)]
+  [UserVisible(true)]
+  [Order(Before = Priority.High)]
+  internal sealed class XmlClosingTagFormat : ClassificationFormatDefinition {
+    public XmlClosingTagFormat() {
+      this.DisplayName = "XML Closing Tag";
+      this.ForegroundColor = Colors.LightBlue;
+    }
+  }
+}
