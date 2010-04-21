@@ -30,6 +30,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
 
   class XmlTagger : ITagger<ClassificationTag> {
     private ClassificationTag xmlCloseTagClassification;
+    private ClassificationTag xmlPrefixClassification;
     private ITagAggregator<ClassificationTag> aggregator;
 #pragma warning disable 67
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
@@ -40,6 +41,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         ITagAggregator<ClassificationTag> aggregator) {
       xmlCloseTagClassification =
          new ClassificationTag(registry.GetClassificationType(Constants.XML_CLOSING));
+      xmlPrefixClassification =
+         new ClassificationTag(registry.GetClassificationType(Constants.XML_PREFIX));
       this.aggregator = aggregator;
     }
     public IEnumerable<ITagSpan<ClassificationTag>> GetTags(NormalizedSnapshotSpanCollection spans) {
@@ -57,8 +60,21 @@ namespace Winterdom.VisualStudio.Extensions.Text {
           if ( cs.GetText().EndsWith("</") ) {
             foundClosingTag = true;
           }
-        } else if ( foundClosingTag && tagName == "XML Name" ) {
-          yield return new TagSpan<ClassificationTag>(cs, xmlCloseTagClassification);
+        } else if ( tagName == "XML Name" ) {
+          String text = cs.GetText();
+          int colon = text.IndexOf(':');
+          if ( colon < 0 && foundClosingTag ) {
+            yield return new TagSpan<ClassificationTag>(cs, xmlCloseTagClassification);
+          } else if ( colon > 0 ) {
+            string prefix = text.Substring(0, colon);
+            string name = text.Substring(colon);
+            yield return new TagSpan<ClassificationTag>(
+              new SnapshotSpan(cs.Start, prefix.Length), xmlPrefixClassification);
+            if ( foundClosingTag ) {
+              yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
+                cs.Start.Add(prefix.Length), name.Length), xmlCloseTagClassification);
+            }
+          }
           foundClosingTag = false;
         }
       }
