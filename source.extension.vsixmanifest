@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Vsix xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="1.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2010">
-  <Identifier Id="XmlImprovements.Winterdomt.a2ed0592-4a68-422a-b3fe-20e998af5501">
-    <Name>XML Editor Improvements</Name>
+  <Identifier Id="BetterXml.Winterdom.a2ed0592-4a68-422a-b3fe-20e998af5501">
+    <Name>BetterXML</Name>
     <Author>Microsoft</Author>
     <Version>1.0</Version>
     <Description xml:space="preserve">Some extensions to improve XML editor experience</Description>
@@ -9,7 +9,10 @@
     <MoreInfoUrl>http://winterdom.com/</MoreInfoUrl>
     <SupportedProducts>
       <VisualStudio Version="10.0">
+        <Edition>Ultimate</Edition>
+        <Edition>Premium</Edition>
         <Edition>Pro</Edition>
+        <Edition>IntegratedShell</Edition>
       </VisualStudio>
     </SupportedProducts>
     <SupportedFrameworkRuntimeEdition MinVersion="4.0" MaxVersion="4.0" />
