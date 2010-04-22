@@ -68,7 +68,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       foreach ( var tagSpan in aggregator.GetTags(spans) ) {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
         var cs = tagSpan.Span.GetSpans(snapshot)[0];
-        //System.Diagnostics.Debug.WriteLine(String.Format("{0}:{1}", tagName, cs.GetText()));
         if ( IsXmlDelimiter(tagName) ) {
           if ( cs.GetText().EndsWith("</") ) {
             foundClosingTag = true;
@@ -91,7 +90,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       foreach ( var tagSpan in aggregator.GetTags(spans) ) {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
         var cs = tagSpan.Span.GetSpans(snapshot)[0];
-        //System.Diagnostics.Debug.WriteLine(String.Format("{0}:{1}", tagName, cs.GetText()));
         if ( IsXmlDelimiter(tagName) ) {
           if ( cs.GetText().EndsWith("</") ) {
             foundClosingTag = true;
