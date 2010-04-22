@@ -86,7 +86,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       bool foundClosingTag = false;
       SnapshotSpan? lastSpan = null;
 
-      // XAML parses stuff in really weird ways
+      // XAML parses stuff in really weird ways, so we need to special case it
       foreach ( var tagSpan in aggregator.GetTags(spans) ) {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
         var cs = tagSpan.Span.GetSpans(snapshot)[0];
