@@ -29,7 +29,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
   internal sealed class XmlClosingTagFormat : ClassificationFormatDefinition {
     public XmlClosingTagFormat() {
       this.DisplayName = "XML Closing Tag";
-      this.ForegroundColor = Colors.LightBlue;
+      this.ForegroundColor = Colors.MediumVioletRed;
     }
   }
   [Export(typeof(EditorFormatDefinition))]
