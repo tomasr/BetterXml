@@ -12,7 +12,8 @@ using Microsoft.VisualStudio.Utilities;
 namespace Winterdom.VisualStudio.Extensions.Text {
 
   [Export(typeof(IViewTaggerProvider))]
-  [ContentType("XML")]
+  [ContentType(Constants.CT_XML)]
+  [ContentType(Constants.CT_XAML)]
   [TagType(typeof(ClassificationTag))]
   public class XmlTaggerProvider : IViewTaggerProvider {
     [Import]
@@ -32,6 +33,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     private ClassificationTag xmlCloseTagClassification;
     private ClassificationTag xmlPrefixClassification;
     private ITagAggregator<ClassificationTag> aggregator;
+    private static readonly List<ITagSpan<ClassificationTag>> EmptyList =
+      new List<ITagSpan<ClassificationTag>>();
 #pragma warning disable 67
     public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 #pragma warning restore 67
@@ -46,21 +49,31 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       this.aggregator = aggregator;
     }
     public IEnumerable<ITagSpan<ClassificationTag>> GetTags(NormalizedSnapshotSpanCollection spans) {
-      if ( spans.Count == 0 ) {
-        yield break;
+      if ( spans.Count > 0 ) {
+        ITextSnapshot snapshot = spans[0].Snapshot;
+        IContentType fileType = snapshot.TextBuffer.ContentType;
+        if ( fileType.IsOfType(Constants.CT_XML) ) {
+          return DoXML(spans);
+        } else if ( fileType.IsOfType(Constants.CT_XAML) ) {
+          return DoXAML(spans);
+        }
       }
-      ITextSnapshot snapshot = spans[0].Snapshot;
+      return EmptyList;
+    }
 
+    private IEnumerable<ITagSpan<ClassificationTag>> DoXML(NormalizedSnapshotSpanCollection spans) {
+      ITextSnapshot snapshot = spans[0].Snapshot;
       bool foundClosingTag = false;
 
       foreach ( var tagSpan in aggregator.GetTags(spans) ) {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
         var cs = tagSpan.Span.GetSpans(snapshot)[0];
-        if ( tagName == "XML Delimiter" ) {
+        //System.Diagnostics.Debug.WriteLine(String.Format("{0}:{1}", tagName, cs.GetText()));
+        if ( IsXmlDelimiter(tagName) ) {
           if ( cs.GetText().EndsWith("</") ) {
             foundClosingTag = true;
           }
-        } else if ( tagName == "XML Name" || tagName == "XML Attribute" ) {
+        } else if ( IsXmlName(tagName) || IsXmlAttribute(tagName) ) {
           foreach ( var ct in ProcessXmlName(cs, foundClosingTag) ) {
             yield return ct;
           }
@@ -69,6 +82,31 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       }
     }
 
+    private IEnumerable<ITagSpan<ClassificationTag>> DoXAML(NormalizedSnapshotSpanCollection spans) {
+      ITextSnapshot snapshot = spans[0].Snapshot;
+      bool foundClosingTag = false;
+      SnapshotSpan? lastSpan = null;
+
+      // XAML parses stuff in really weird ways
+      foreach ( var tagSpan in aggregator.GetTags(spans) ) {
+        String tagName = tagSpan.Tag.ClassificationType.Classification;
+        var cs = tagSpan.Span.GetSpans(snapshot)[0];
+        //System.Diagnostics.Debug.WriteLine(String.Format("{0}:{1}", tagName, cs.GetText()));
+        if ( IsXmlDelimiter(tagName) ) {
+          if ( cs.GetText().EndsWith("</") ) {
+            foundClosingTag = true;
+          } else if ( cs.GetText() == ":" && lastSpan.HasValue ) {
+            yield return new TagSpan<ClassificationTag>(lastSpan.Value, xmlPrefixClassification);
+          } else if ( cs.GetText().IndexOf('>') >= 0 && foundClosingTag ) {
+            yield return new TagSpan<ClassificationTag>(lastSpan.Value, xmlCloseTagClassification);
+            foundClosingTag = false;
+          }
+          lastSpan = null;
+        } else if ( IsXmlName(tagName) || IsXmlAttribute(tagName) ) {
+          lastSpan = cs;
+        }
+      }
+    }
     private IEnumerable<ITagSpan<ClassificationTag>> ProcessXmlName(SnapshotSpan cs, bool isClosing) {
       String text = cs.GetText();
       int colon = text.IndexOf(':');
@@ -84,6 +122,15 @@ namespace Winterdom.VisualStudio.Extensions.Text {
             cs.Start.Add(prefix.Length), name.Length), xmlCloseTagClassification);
         }
       }
+    }
+    private bool IsXmlName(String tagName) {
+      return tagName == "XML Name" || tagName == "XAML Name";
+    }
+    private bool IsXmlAttribute(String tagName) {
+      return tagName == "XML Attribute" || tagName == "XAML Attribute";
+    }
+    private bool IsXmlDelimiter(String tagName) {
+      return tagName == "XML Delimiter" || tagName == "XAML Delimiter";
     }
   }
 }

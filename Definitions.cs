@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Winterdom.VisualStudio.Extensions.Text {
   internal static class Constants {
+    public const string CT_XML = "XML";
+    public const string CT_XAML = "XAML";
     public const string XML_CLOSING = "XMLCloseTag";
     public const string XML_PREFIX = "XMLPrefix";
   }
