@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("XML Improvements")]
+[assembly: AssemblyTitle("BetterXML")]
 [assembly: AssemblyDescription("XML Editor Extensions for VS2010")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("XmlImprovements")]
+[assembly: AssemblyProduct("BetterXML")]
 [assembly: AssemblyCopyright("Tomas Restrepo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
