@@ -32,6 +32,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
   class XmlTagger : ITagger<ClassificationTag> {
     private ClassificationTag xmlCloseTagClassification;
     private ClassificationTag xmlPrefixClassification;
+    private ClassificationTag xmlDelimiterClassification;
     private ITagAggregator<ClassificationTag> aggregator;
     private static readonly List<ITagSpan<ClassificationTag>> EmptyList =
       new List<ITagSpan<ClassificationTag>>();
@@ -46,6 +47,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
          new ClassificationTag(registry.GetClassificationType(Constants.XML_CLOSING));
       xmlPrefixClassification =
          new ClassificationTag(registry.GetClassificationType(Constants.XML_PREFIX));
+      xmlDelimiterClassification =
+         new ClassificationTag(registry.GetClassificationType(Constants.DELIMITER));
       this.aggregator = aggregator;
     }
     public IEnumerable<ITagSpan<ClassificationTag>> GetTags(NormalizedSnapshotSpanCollection spans) {
@@ -115,9 +118,11 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         string name = text.Substring(colon);
         yield return new TagSpan<ClassificationTag>(
           new SnapshotSpan(cs.Start, prefix.Length), xmlPrefixClassification);
+        yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
+          cs.Start.Add(prefix.Length), 1), xmlDelimiterClassification);
         if ( isClosing ) {
           yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
-            cs.Start.Add(prefix.Length), name.Length), xmlCloseTagClassification);
+            cs.Start.Add(prefix.Length+1), name.Length-1), xmlCloseTagClassification);
         }
       }
     }
