@@ -7,6 +7,7 @@
     <Description xml:space="preserve">Some extensions to improve XML editor experience</Description>
     <Locale>1033</Locale>
     <MoreInfoUrl>http://winterdom.com/</MoreInfoUrl>
+    <Icon>icon.png</Icon>
     <SupportedProducts>
       <VisualStudio Version="10.0">
         <Edition>Ultimate</Edition>
