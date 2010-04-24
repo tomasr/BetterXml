@@ -14,7 +14,7 @@ configured using the "XML Prefix" classification format.
 
 Both features are supported on XML and XAML documents.
 
-![Extension sample](raw/master/preview.png)
+![Extension sample](http://github.com/tomasr/BetterXml/raw/master/preview.png)
 
 ## Installation
 
