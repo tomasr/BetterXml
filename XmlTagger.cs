@@ -94,11 +94,12 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
         var cs = tagSpan.Span.GetSpans(snapshot)[0];
         if ( IsXmlDelimiter(tagName) ) {
-          if ( cs.GetText().EndsWith("</") ) {
+          String text = cs.GetText();
+          if ( text.EndsWith("</") ) {
             foundClosingTag = true;
-          } else if ( cs.GetText() == ":" && lastSpan.HasValue ) {
+          } else if ( text == ":" && lastSpan.HasValue ) {
             yield return new TagSpan<ClassificationTag>(lastSpan.Value, xmlPrefixClassification);
-          } else if ( cs.GetText().IndexOf('>') >= 0 && foundClosingTag ) {
+          } else if ( text.IndexOf('>') >= 0 && foundClosingTag ) {
             yield return new TagSpan<ClassificationTag>(lastSpan.Value, xmlCloseTagClassification);
             foundClosingTag = false;
           }
