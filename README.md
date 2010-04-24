@@ -14,7 +14,7 @@ configured using the "XML Prefix" classification format.
 
 Both features are supported on XML and XAML documents.
 
-![Extension sample](blob/master/preview.png)
+![Extension sample](raw/master/preview.png)
 
 ## Installation
 
