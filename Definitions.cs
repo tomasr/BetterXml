@@ -11,7 +11,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     public const string XML_CLOSING = "XMLCloseTag";
     public const string XML_PREFIX = "XMLPrefix";
     // I'd prefer "XML Delimiter" here, but no way to
-    // get that at runtime. Yuck 
+    // use it effectively.
     public const string DELIMITER = PredefinedClassificationTypeNames.Operator;
   }
   internal static class XmlClosingTagClassificationDefinition {

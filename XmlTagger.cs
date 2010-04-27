@@ -116,14 +116,14 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         yield return new TagSpan<ClassificationTag>(cs, xmlCloseTagClassification);
       } else if ( colon > 0 ) {
         string prefix = text.Substring(0, colon);
-        string name = text.Substring(colon);
+        string name = text.Substring(colon+1);
         yield return new TagSpan<ClassificationTag>(
           new SnapshotSpan(cs.Start, prefix.Length), xmlPrefixClassification);
         yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
           cs.Start.Add(prefix.Length), 1), xmlDelimiterClassification);
         if ( isClosing ) {
           yield return new TagSpan<ClassificationTag>(new SnapshotSpan(
-            cs.Start.Add(prefix.Length+1), name.Length-1), xmlCloseTagClassification);
+            cs.Start.Add(prefix.Length+1), name.Length), xmlCloseTagClassification);
         }
       }
     }
