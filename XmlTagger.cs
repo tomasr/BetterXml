@@ -34,6 +34,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     private ClassificationTag xmlCloseTagClassification;
     private ClassificationTag xmlPrefixClassification;
     private ClassificationTag xmlDelimiterClassification;
+    private IMarkupLanguage language;
     private ITagAggregator<ClassificationTag> aggregator;
     private static readonly List<ITagSpan<ClassificationTag>> EmptyList =
       new List<ITagSpan<ClassificationTag>>();
@@ -57,10 +58,13 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         ITextSnapshot snapshot = spans[0].Snapshot;
         IContentType fileType = snapshot.TextBuffer.ContentType;
         if ( fileType.IsOfType(Constants.CT_XML) ) {
+          if ( language == null ) language = new XmlMarkup();
           return DoXML(spans);
         } else if ( fileType.IsOfType(Constants.CT_XAML) ) {
+          if ( language == null ) language = new XamlMarkup();
           return DoXAMLorHTML(spans);
         } else if ( fileType.IsOfType(Constants.CT_HTML) ) {
+          if ( language == null ) language = new HtmlMarkup();
           return DoXAMLorHTML(spans);
         }
       }
@@ -131,14 +135,13 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       }
     }
     private bool IsXmlName(String tagName) {
-      return tagName == "XML Name" || tagName == "XAML Name" || tagName == "HTML Element Name";
+      return language.IsName(tagName);
     }
     private bool IsXmlAttribute(String tagName) {
-      return tagName == "XML Attribute" || tagName == "XAML Attribute" || tagName == "HTML Attribute Name";
+      return language.IsAttribute(tagName);
     }
     private bool IsXmlDelimiter(String tagName) {
-      return tagName == "XML Delimiter" || tagName == "XAML Delimiter"
-        || tagName == "HTML Tag Delimiter" || tagName == "HTML Operator";
+      return language.IsDelimiter(tagName);
     }
   }
 }
