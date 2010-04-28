@@ -14,12 +14,11 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     // use it effectively.
     public const string DELIMITER = PredefinedClassificationTypeNames.Operator;
   }
-  internal static class XmlClosingTagClassificationDefinition {
+  internal static class BetterXmlClassificationDefinitions {
     [Export(typeof(ClassificationTypeDefinition))]
     [Name(Constants.XML_CLOSING)]
     internal static ClassificationTypeDefinition XmlClosingType = null;
-  }
-  internal static class XmlPrefixClassificationDefinition {
+
     [Export(typeof(ClassificationTypeDefinition))]
     [Name(Constants.XML_PREFIX)]
     internal static ClassificationTypeDefinition XmlPrefixType = null;
