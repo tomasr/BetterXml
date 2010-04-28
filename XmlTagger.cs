@@ -14,6 +14,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
   [Export(typeof(IViewTaggerProvider))]
   [ContentType(Constants.CT_XML)]
   [ContentType(Constants.CT_XAML)]
+  [ContentType(Constants.CT_HTML)]
   [TagType(typeof(ClassificationTag))]
   public class XmlTaggerProvider : IViewTaggerProvider {
     [Import]
@@ -58,7 +59,9 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         if ( fileType.IsOfType(Constants.CT_XML) ) {
           return DoXML(spans);
         } else if ( fileType.IsOfType(Constants.CT_XAML) ) {
-          return DoXAML(spans);
+          return DoXAMLorHTML(spans);
+        } else if ( fileType.IsOfType(Constants.CT_HTML) ) {
+          return DoXAMLorHTML(spans);
         }
       }
       return EmptyList;
@@ -84,7 +87,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       }
     }
 
-    private IEnumerable<ITagSpan<ClassificationTag>> DoXAML(NormalizedSnapshotSpanCollection spans) {
+    private IEnumerable<ITagSpan<ClassificationTag>> DoXAMLorHTML(NormalizedSnapshotSpanCollection spans) {
       ITextSnapshot snapshot = spans[0].Snapshot;
       bool foundClosingTag = false;
       SnapshotSpan? lastSpan = null;
@@ -128,13 +131,14 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       }
     }
     private bool IsXmlName(String tagName) {
-      return tagName == "XML Name" || tagName == "XAML Name";
+      return tagName == "XML Name" || tagName == "XAML Name" || tagName == "HTML Element Name";
     }
     private bool IsXmlAttribute(String tagName) {
-      return tagName == "XML Attribute" || tagName == "XAML Attribute";
+      return tagName == "XML Attribute" || tagName == "XAML Attribute" || tagName == "HTML Attribute Name";
     }
     private bool IsXmlDelimiter(String tagName) {
-      return tagName == "XML Delimiter" || tagName == "XAML Delimiter";
+      return tagName == "XML Delimiter" || tagName == "XAML Delimiter"
+        || tagName == "HTML Tag Delimiter" || tagName == "HTML Operator";
     }
   }
 }
