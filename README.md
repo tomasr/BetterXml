@@ -12,7 +12,7 @@ from opening tags. Adjust the "XML Closing Tag" classification
 2. Highlighting XML prefixes on attributes and tags with a new format,
 configured using the "XML Prefix" classification format.
 
-Both features are supported on XML and XAML documents.
+Both features are supported on XML, XAML and HTML documents.
 
 ![Extension sample](http://github.com/tomasr/BetterXml/raw/master/preview.png)
 
