@@ -70,6 +70,10 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       foreach ( var tagSpan in tagAggregator.GetTags(span) ) {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
         if ( tagName == Constants.XML_PREFIX ) {
+          String text = span.GetText();
+          if ( text.StartsWith("<") || text.Contains(":") ) {
+            return false;
+          }
           return true;
         }
       }
