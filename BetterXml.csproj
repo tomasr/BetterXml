@@ -36,6 +36,10 @@
     <Reference Include="Microsoft.VisualStudio.CoreUtility">
       <Private>False</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.Language.Intellisense, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 2010 SDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.Language.Intellisense.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.Language.StandardClassification, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.VisualStudio.Text.Data">
       <Private>False</Private>
@@ -64,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Definitions.cs" />
     <Compile Include="Languages.cs" />
+    <Compile Include="QuickInfo.cs" />
     <Compile Include="XmlTagger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
