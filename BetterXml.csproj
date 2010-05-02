@@ -66,6 +66,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="QuickInfoController.cs" />
     <Compile Include="Definitions.cs" />
     <Compile Include="Languages.cs" />
     <Compile Include="QuickInfo.cs" />
