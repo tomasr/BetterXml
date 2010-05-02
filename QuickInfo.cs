@@ -53,13 +53,14 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       ITextStructureNavigator navigator =
         provider.NavigatorService.GetTextStructureNavigator(textBuffer);
       TextExtent extent = navigator.GetExtentOfWord(subjectTriggerPoint.Value);
-      string searchText = extent.Span.GetText();
 
       if ( CheckForPrefixTag(tagAggregator, extent.Span) ) {
+        string text = extent.Span.GetText();
+        string url = "unknown";
         applicableToSpan = currentSnapshot.CreateTrackingSpan(
           extent.Span, SpanTrackingMode.EdgeInclusive
         );
-        quickInfoContent.Add("This is a tooltip");
+        quickInfoContent.Add(String.Format("{0}: {1}", text, url));
       }
     }
 
