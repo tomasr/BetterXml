@@ -82,6 +82,13 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         while ( reader.Read() ) {
           if ( reader.Prefix == thisPrefix ) {
             lastUriForPrefix = reader.NamespaceURI;
+          } else if ( reader.NodeType == XmlNodeType.Element ) {
+            for ( int i = 0; i < reader.AttributeCount; i++ ) {
+              reader.MoveToAttribute(i);
+              if ( reader.Prefix == thisPrefix ) {
+                lastUriForPrefix = reader.NamespaceURI;
+              }
+            }
           }
         }
       } catch ( Exception ex ) {
