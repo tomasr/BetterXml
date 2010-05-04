@@ -41,7 +41,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     public void AugmentQuickInfoSession(
         IQuickInfoSession session, IList<object> quickInfoContent,
         out ITrackingSpan applicableToSpan) {
-
       applicableToSpan = null;
       SnapshotPoint? subjectTriggerPoint =
         session.GetTriggerPoint(textBuffer.CurrentSnapshot);
@@ -62,16 +61,15 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         applicableToSpan = currentSnapshot.CreateTrackingSpan(
           extent.Span, SpanTrackingMode.EdgeInclusive
         );
-        quickInfoContent.Add(String.Format("{0}: {1}", text, url));
+        String toolTipText = String.Format("Prefix: {0}\r\nNamespace: {1}", text, url);
+        quickInfoContent.Add(toolTipText);
       }
     }
 
+    // Ugly method, but not sure how else to grab this
+    // short of parsing the document up to the element we're on.
     private String FindNSUri(SnapshotSpan span, String docText) {
-      String subtext = docText;
-      int endElem = docText.IndexOf('>', span.Span.End);
-      if ( endElem > 0 && endElem < docText.Length - 1) {
-        subtext = docText.Substring(0, endElem+1); 
-      }
+      String subtext = FindMinTextToParse(span, docText);
       StringReader sr = new StringReader(subtext);
       XmlReaderSettings settings = new XmlReaderSettings();
       settings.ConformanceLevel = ConformanceLevel.Fragment;
@@ -91,9 +89,18 @@ namespace Winterdom.VisualStudio.Extensions.Text {
             }
           }
         }
-      } catch ( Exception ex ) {
+      } catch {
       }
       return String.IsNullOrEmpty(lastUriForPrefix) ? "unknown" : lastUriForPrefix;
+    }
+
+    private static String FindMinTextToParse(SnapshotSpan span, String docText) {
+      String subtext = docText;
+      int endElem = docText.IndexOf('>', span.Span.End);
+      if ( endElem > 0 && endElem < docText.Length - 1 ) {
+        subtext = docText.Substring(0, endElem + 1);
+      }
+      return subtext;
     }
     private String GetDocText(SnapshotSpan span) {
       return span.Snapshot.GetText();
