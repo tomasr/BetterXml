@@ -108,17 +108,15 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     private bool CheckForPrefixTag(
         ITagAggregator<ClassificationTag> tagAggregator,
         SnapshotSpan span) {
-      foreach ( var tagSpan in tagAggregator.GetTags(span) ) {
-        String tagName = tagSpan.Tag.ClassificationType.Classification;
-        if ( tagName == Constants.XML_PREFIX ) {
-          String text = span.GetText();
-          if ( text.StartsWith("<") || text.Contains(":") ) {
-            return false;
-          }
-          return true;
-        }
+      String text = span.GetText();
+      if ( text.StartsWith("<") || text.Contains(":") ) {
+        return false;
       }
-      return false;
+      var firstMatch = from tagSpan in tagAggregator.GetTags(span)
+                       let tagName = tagSpan.Tag.ClassificationType.Classification
+                       where tagName == Constants.XML_PREFIX
+                       select tagSpan;
+      return firstMatch.FirstOrDefault() != null;
     }
 
     private ITagAggregator<ClassificationTag> GetAggregator(IQuickInfoSession session) {
