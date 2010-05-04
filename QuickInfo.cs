@@ -51,9 +51,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       SnapshotSpan querySpan = new SnapshotSpan(subjectTriggerPoint.Value, 0);
 
       var tagAggregator = GetAggregator(session);
-      ITextStructureNavigator navigator =
-        provider.NavigatorService.GetTextStructureNavigator(textBuffer);
-      TextExtent extent = navigator.GetExtentOfWord(subjectTriggerPoint.Value);
+      TextExtent extent = FindExtentAtPoint(subjectTriggerPoint);
 
       if ( CheckForPrefixTag(tagAggregator, extent.Span) ) {
         string text = extent.Span.GetText();
@@ -66,6 +64,13 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       }
     }
 
+    private TextExtent FindExtentAtPoint(SnapshotPoint? subjectTriggerPoint) {
+      ITextStructureNavigator navigator =
+        provider.NavigatorService.GetTextStructureNavigator(textBuffer);
+      TextExtent extent = navigator.GetExtentOfWord(subjectTriggerPoint.Value);
+      return extent;
+    }
+
     // Ugly method, but not sure how else to grab this
     // short of parsing the document up to the element we're on.
     private String FindNSUri(SnapshotSpan span, String docText) {
@@ -74,7 +79,14 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       XmlReaderSettings settings = new XmlReaderSettings();
       settings.ConformanceLevel = ConformanceLevel.Fragment;
       XmlReader reader = XmlReader.Create(sr, settings);
+      
       String thisPrefix = span.GetText();
+      String lastUriForPrefix = ReadXmlUntilEnd(reader, thisPrefix);
+      reader.Close();
+      return String.IsNullOrEmpty(lastUriForPrefix) ? "unknown" : lastUriForPrefix;
+    }
+
+    private static String ReadXmlUntilEnd(XmlReader reader, String thisPrefix) {
       String lastUriForPrefix = null;
       try {
         while ( reader.Read() ) {
@@ -91,7 +103,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         }
       } catch {
       }
-      return String.IsNullOrEmpty(lastUriForPrefix) ? "unknown" : lastUriForPrefix;
+      return lastUriForPrefix;
     }
 
     private static String FindMinTextToParse(SnapshotSpan span, String docText) {
