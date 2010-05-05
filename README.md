@@ -3,7 +3,7 @@
 This is a sample extension for Visual Studio 2010 that improves
 the XML editing experience.
 
-It currently provides the following features:
+## Syntax Highlighting
 
 1. Highlighting XML closing tags with a format different
 from opening tags. Adjust the "XML Closing Tag" classification
@@ -16,13 +16,16 @@ Both features are supported on XML, XAML and HTML documents.
 
 ![classification sample](http://github.com/tomasr/BetterXml/raw/master/preview.png)
 
-3. Tooltips showing the namepace URI associated with a prefix when you hover
+## Namespace Tooltips
+
+Tooltips showing the namepace URI associated with a prefix when you hover
 the mouse over the prefix.
 
 ![tooltips sample](http://github.com/tomasr/BetterXml/raw/master/img/tooltips.png)
 
 This can be a bit slow at times because right now it requires parsing
-the document partially.
+the document partially. This feature is only supported for XML and XAML
+documents.
 
 ## Installation
 
