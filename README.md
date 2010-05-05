@@ -14,7 +14,15 @@ configured using the "XML Prefix" classification format.
 
 Both features are supported on XML, XAML and HTML documents.
 
-![Extension sample](http://github.com/tomasr/BetterXml/raw/master/preview.png)
+![classification sample](http://github.com/tomasr/BetterXml/raw/master/preview.png)
+
+3. Tooltips showing the namepace URI associated with a prefix when you hover
+the mouse over the prefix.
+
+![tooltips sample](http://github.com/tomasr/BetterXml/raw/master/img/tooltips.png)
+
+This can be a bit slow at times because right now it requires parsing
+the document partially.
 
 ## Installation
 
