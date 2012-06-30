@@ -118,7 +118,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return span.Snapshot.GetText();
     }
     private bool CheckForPrefixTag(
-        ITagAggregator<ClassificationTag> tagAggregator,
+        ITagAggregator<IClassificationTag> tagAggregator,
         SnapshotSpan span) {
       String text = span.GetText();
       if ( text.StartsWith("<") || text.Contains(":") ) {
@@ -131,8 +131,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return firstMatch.FirstOrDefault() != null;
     }
 
-    private ITagAggregator<ClassificationTag> GetAggregator(IQuickInfoSession session) {
-      return provider.AggregatorFactory.CreateTagAggregator<ClassificationTag>(
+    private ITagAggregator<IClassificationTag> GetAggregator(IQuickInfoSession session) {
+      return provider.AggregatorFactory.CreateTagAggregator<IClassificationTag>(
         session.TextView
       );
     }

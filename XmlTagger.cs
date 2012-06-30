@@ -25,7 +25,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag {
       return new XmlTagger(
          ClassificationRegistry,
-         Aggregator.CreateTagAggregator<ClassificationTag>(buffer)
+         Aggregator.CreateTagAggregator<IClassificationTag>(buffer)
       ) as ITagger<T>;
     }
   }
@@ -35,7 +35,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     private ClassificationTag xmlPrefixClassification;
     private ClassificationTag xmlDelimiterClassification;
     private IMarkupLanguage language;
-    private ITagAggregator<ClassificationTag> aggregator;
+    private ITagAggregator<IClassificationTag> aggregator;
     private static readonly List<ITagSpan<ClassificationTag>> EmptyList =
       new List<ITagSpan<ClassificationTag>>();
 #pragma warning disable 67
@@ -44,7 +44,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
 
     internal XmlTagger(
         IClassificationTypeRegistryService registry,
-        ITagAggregator<ClassificationTag> aggregator) {
+        ITagAggregator<IClassificationTag> aggregator) {
       xmlCloseTagClassification =
          new ClassificationTag(registry.GetClassificationType(Constants.XML_CLOSING));
       xmlPrefixClassification =
