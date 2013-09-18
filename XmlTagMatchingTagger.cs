@@ -72,6 +72,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         searchFor = "<" + current.GetText();
       } else {
         searchFor = "</" + current.GetText() + ">";
+        currentTag = ExtendOpeningTag(currentTag);
         complementTag = FindClosingTag(current.Snapshot, currentTag.Start, searchFor);
       }
 
@@ -80,6 +81,33 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       if ( complementTag.HasValue ) {
         yield return new TagSpan<TextMarkerTag>(complementTag.Value, new TextMarkerTag("bracehighlight"));
       }
+    }
+
+    private SnapshotSpan ExtendOpeningTag(SnapshotSpan currentTag) {
+      var snapshot = currentTag.Snapshot;
+      int end = -1;
+      String currentQuote = null;
+      for ( int i = currentTag.Start; i < snapshot.Length; i++ ) {
+        String ch = snapshot.GetText(i, 1);
+        if ( currentQuote == null ) {
+          if ( ch == "\"" || ch == "'" ) {
+            currentQuote = ch;
+          } else {
+            if ( ch == ">" ) {
+              end = i;
+              break;
+            }
+          }
+        } else {
+          if ( ch == currentQuote ) {
+            currentQuote = null;
+          }
+        }
+      }
+      if ( end > currentTag.Start ) {
+        return new SnapshotSpan(snapshot, currentTag.Start, end - currentTag.Start + 1);
+      }
+      return currentTag;
     }
 
     private SnapshotSpan? FindClosingTag(ITextSnapshot snapshot, int searchStart, string searchFor) {
