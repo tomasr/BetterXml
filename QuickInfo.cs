@@ -151,7 +151,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return val;
     }
     public override int Read(char[] buffer, int index, int count) {
-      int read = base.Read(buffer, index, count);
+      int read = base.Read(buffer, index, 1);
       Position += read;
       return read;
     }
