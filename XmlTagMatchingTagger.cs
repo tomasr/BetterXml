@@ -9,6 +9,9 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System.Xml;
+using Sgml;
+using System.IO;
+using System.Diagnostics;
 
 namespace Winterdom.VisualStudio.Extensions.Text {
 
@@ -113,22 +116,41 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     private SnapshotSpan? FindClosingTag(ITextSnapshot snapshot, int searchStart, string searchFor) {
       String textToSearch = snapshot.GetText(searchStart, snapshot.Length - searchStart);
 
-      CountingStringReader csr = new CountingStringReader(textToSearch);
-      XmlReaderSettings settings = new XmlReaderSettings();
-      settings.ConformanceLevel = ConformanceLevel.Fragment;
-      settings.IgnoreWhitespace = false;
-      using ( XmlReader reader = XmlReader.Create(csr, settings) ) {
+      using ( SgmlReader reader = new SgmlReader() ) {
+        reader.InputStream = new StringReader(textToSearch);
+        reader.WhitespaceHandling = WhitespaceHandling.All;
         try {
           reader.Read();
           if ( !reader.IsEmptyElement ) {
-            reader.Skip();
-            int wsae = 0;
-            for ( int i = csr.Position - 2; i > 0 && Char.IsWhiteSpace(textToSearch[i]); i-- ) {
-              wsae++;
+            // skip all the internal nodes, until the end
+            while ( reader.Read() ) {
+              if ( reader.NodeType == XmlNodeType.EndElement && reader.Depth == 1 )
+                break;
             }
-            return new SnapshotSpan(snapshot, searchStart + csr.Position - searchFor.Length - wsae - 1, searchFor.Length);
-          } else {
-            return new SnapshotSpan(snapshot, searchStart + csr.Position - 2, 2);
+            // calculate the new position based on the number of lines
+            // read in the SgmlReader + the position within that line.
+            // Note that if there is whitespace after the closing tag
+            // we'll be positioned on it, so we need to keep track of that.
+            var origLine = snapshot.GetLineFromPosition(searchStart);
+            int startOffset = searchStart - origLine.Start.Position;
+            int newStart = 0;
+            // tag is on same position as the opening one
+            if ( reader.LineNumber == 1 ) {
+              var line = snapshot.GetLineFromPosition(searchStart);
+              newStart = line.Start.Position + startOffset + reader.LinePosition - 2;
+            } else {
+                int newLineNum = origLine.LineNumber + reader.LineNumber - 1;
+                var newLine = snapshot.GetLineFromLineNumber(newLineNum);
+                newStart = newLine.Start.Position + reader.LinePosition - 1;
+            }
+            newStart -= reader.Name.Length + 3; // </ + element + >
+
+            SnapshotSpan? newSpan = new SnapshotSpan(snapshot, newStart, searchFor.Length);
+            if ( newSpan.Value.GetText() != searchFor ) {
+              Trace.WriteLine(String.Format("Searching for '{0}', but found '{1}'.", searchFor, newSpan.Value.GetText()));
+              //newSpan = null;
+            }
+            return newSpan;
           }
         } catch {
         }
