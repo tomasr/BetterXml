@@ -66,13 +66,14 @@ namespace Winterdom.VisualStudio.Extensions.Text {
 
       SnapshotSpan currentTag = CompleteTag(current);
       String text = currentTag.GetText();
-      // avoid processing statements
+      // avoid processing statements or xml declarations
       if ( text.Contains('?') ) yield break;
 
       String searchFor = null;
       SnapshotSpan? complementTag = null;
       if ( text.StartsWith("</") ) {
         searchFor = "<" + current.GetText();
+        // TODO: search for the opening tag
       } else {
         searchFor = "</" + current.GetText() + ">";
         currentTag = ExtendOpeningTag(currentTag);
@@ -86,6 +87,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       }
     }
 
+    // Extend the opening tag all the way to the >, even if
+    // it has multiple attributes and what not.
     private SnapshotSpan ExtendOpeningTag(SnapshotSpan currentTag) {
       var snapshot = currentTag.Snapshot;
       int end = -1;
@@ -95,16 +98,12 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         if ( currentQuote == null ) {
           if ( ch == "\"" || ch == "'" ) {
             currentQuote = ch;
-          } else {
-            if ( ch == ">" ) {
-              end = i;
-              break;
-            }
+          } else if ( ch == ">" ) {
+            end = i;
+            break;
           }
-        } else {
-          if ( ch == currentQuote ) {
-            currentQuote = null;
-          }
+        } else if ( ch == currentQuote ) {
+          currentQuote = null;
         }
       }
       if ( end > currentTag.Start ) {
@@ -152,7 +151,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
             }
             return newSpan;
           }
-        } catch {
+        } catch (Exception ex) {
+          Trace.WriteLine(String.Format("Exception while parsing document: {0}.", ex.ToString()));
         }
       }
       return null;
