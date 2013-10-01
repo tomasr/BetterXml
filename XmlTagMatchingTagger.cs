@@ -69,13 +69,15 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       // avoid processing statements or xml declarations
       if ( text.Contains('?') ) yield break;
 
-      String searchFor = null;
       SnapshotSpan? complementTag = null;
       if ( text.StartsWith("</") ) {
-        searchFor = "<" + current.GetText();
         // TODO: search for the opening tag
+        complementTag = FindOpeningTag(current.Snapshot, currentTag.End, current.GetText());
+        if ( complementTag != null ) {
+          complementTag = ExtendOpeningTag(complementTag.Value);
+        }
       } else {
-        searchFor = "</" + current.GetText() + ">";
+        String searchFor = "</" + current.GetText() + ">";
         currentTag = ExtendOpeningTag(currentTag);
         complementTag = FindClosingTag(current.Snapshot, currentTag.Start, searchFor);
       }
@@ -112,6 +114,8 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return currentTag;
     }
 
+    // Parse the document from the current position until we find the
+    // matching closing tag
     private SnapshotSpan? FindClosingTag(ITextSnapshot snapshot, int searchStart, string searchFor) {
       String textToSearch = snapshot.GetText(searchStart, snapshot.Length - searchStart);
 
@@ -147,7 +151,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
             SnapshotSpan? newSpan = new SnapshotSpan(snapshot, newStart, searchFor.Length);
             if ( newSpan.Value.GetText() != searchFor ) {
               Trace.WriteLine(String.Format("Searching for '{0}', but found '{1}'.", searchFor, newSpan.Value.GetText()));
-              //newSpan = null;
+              newSpan = null;
             }
             return newSpan;
           }
@@ -158,13 +162,66 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return null;
     }
 
+
+    // parse the document from the start, and try to
+    // figure out where the opening tag matching our closing tag starts
+    private SnapshotSpan? FindOpeningTag(ITextSnapshot snapshot, int searchEnd, string searchFor) {
+      String textToSearch = snapshot.GetText(0, searchEnd);
+      int origLineNum = snapshot.GetLineNumberFromPosition(searchEnd);
+
+      using ( SgmlReader reader = new SgmlReader() ) {
+        reader.InputStream = new StringReader(textToSearch);
+        reader.WhitespaceHandling = WhitespaceHandling.All;
+        try {
+          Stack<int> openingPositions = new Stack<int>();
+          while ( reader.Read() ) {
+            if ( reader.LocalName != searchFor ) {
+              continue;
+            }
+            if ( reader.NodeType == XmlNodeType.Element && !reader.IsEmptyElement ) {
+              // find close to where the tag starts
+              int lineNum = reader.LineNumber - 1;
+              var line = snapshot.GetLineFromLineNumber(lineNum);
+              int position = line.Start.Position + reader.LinePosition - searchFor.Length;
+              position = BacktrackToLessThan(snapshot, position);
+              String textFound = snapshot.GetText(position, 10);
+              openingPositions.Push(position);
+            } else if ( reader.NodeType == XmlNodeType.EndElement ) {
+              if ( openingPositions.Count <= 0 ) {
+                // document is malformed, so just get the heck out
+                return null;
+              }
+              var line = snapshot.GetLineFromLineNumber(reader.LineNumber-1);
+              int position = line.Start.Position + reader.LinePosition;
+              if ( position >= searchEnd ) break;
+              openingPositions.Pop(); 
+            }
+          }
+          // done, last
+          if ( openingPositions.Count > 0 ) {
+            int position = openingPositions.Pop();
+            return new SnapshotSpan(snapshot, position, searchFor.Length+2);
+          }
+        } catch ( Exception ex ) {
+          Trace.WriteLine(String.Format("Exception while parsing document: {0}.", ex.ToString()));
+        }
+      }
+      return null;
+    }
+
+
+    private int BacktrackToLessThan(ITextSnapshot snapshot, int start) {
+      int rs = start - 1;
+      while ( snapshot.GetText(rs, 1) != "<" ) {
+        rs--;
+      }
+      return rs;
+    }
+
     private SnapshotSpan CompleteTag(SnapshotSpan current) {
       var snapshot = current.Snapshot;
-      int start = current.Start - 1;
       int end = current.End + 1;
-      while ( snapshot.GetText(start, 1) != "<" ) {
-        start--;
-      }
+      int start = BacktrackToLessThan(snapshot, current.Start);
 
       return new SnapshotSpan(snapshot, start, end - start);
     }
