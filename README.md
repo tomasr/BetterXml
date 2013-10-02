@@ -27,6 +27,12 @@ This can be a bit slow at times because right now it requires parsing
 the document partially. This feature is only supported for XML and XAML
 documents.
 
+## Matching Element Tags
+
+When the caret is over an XML element, the element opening and closing tags will be highlighted.
+
+![highlight sample](http://github.com/tomasr/BetterXml/raw/master/img/tag_hilight.png)
+
 ## Installation
 
 1. Install the Visual Studio 2010 SDK. You'll need it for building custom
