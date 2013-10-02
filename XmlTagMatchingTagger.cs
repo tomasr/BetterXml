@@ -55,7 +55,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
 
     public IEnumerable<ITagSpan<TextMarkerTag>> GetTags(NormalizedSnapshotSpanCollection spans) {
       if ( spans.Count == 0 ) yield break;
-
       if ( !currentSpan.HasValue ) yield break;
 
       SnapshotSpan current = currentSpan.Value;
@@ -69,9 +68,10 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       // avoid processing statements or xml declarations
       if ( text.Contains('?') ) yield break;
 
+      yield return new TagSpan<TextMarkerTag>(currentTag, new TextMarkerTag("bracehighlight"));
+
       SnapshotSpan? complementTag = null;
       if ( text.StartsWith("</") ) {
-        // TODO: search for the opening tag
         complementTag = FindOpeningTag(current.Snapshot, currentTag.End, current.GetText());
         if ( complementTag != null ) {
           complementTag = ExtendOpeningTag(complementTag.Value);
@@ -81,8 +81,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
         currentTag = ExtendOpeningTag(currentTag);
         complementTag = FindClosingTag(current.Snapshot, currentTag.Start, searchFor);
       }
-
-      yield return new TagSpan<TextMarkerTag>(currentTag, new TextMarkerTag("bracehighlight"));
 
       if ( complementTag.HasValue ) {
         yield return new TagSpan<TextMarkerTag>(complementTag.Value, new TextMarkerTag("bracehighlight"));
@@ -162,7 +160,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return null;
     }
 
-
     // parse the document from the start, and try to
     // figure out where the opening tag matching our closing tag starts
     private SnapshotSpan? FindOpeningTag(ITextSnapshot snapshot, int searchEnd, string searchFor) {
@@ -209,7 +206,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
       return null;
     }
 
-
     private int BacktrackToLessThan(ITextSnapshot snapshot, int start) {
       int rs = start - 1;
       while ( snapshot.GetText(rs, 1) != "<" ) {
@@ -225,7 +221,6 @@ namespace Winterdom.VisualStudio.Extensions.Text {
 
       return new SnapshotSpan(snapshot, start, end - start);
     }
-
 
     private void ViewLayoutChanged(object sender, TextViewLayoutChangedEventArgs e) {
       if ( e.NewSnapshot != e.OldSnapshot ) {
