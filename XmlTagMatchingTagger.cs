@@ -247,7 +247,7 @@ namespace Winterdom.VisualStudio.Extensions.Text {
     }
 
     private SnapshotSpan? GetTagAtPoint(SnapshotPoint point) {
-      SnapshotSpan testSpan = new SnapshotSpan(point.Snapshot, new Span(point.Position - 1, 2));
+      SnapshotSpan testSpan = new SnapshotSpan(point.Snapshot, new Span(point.Position - 1, 1));
 
       foreach ( var tagSpan in aggregator.GetTags(testSpan) ) {
         String tagName = tagSpan.Tag.ClassificationType.Classification;
